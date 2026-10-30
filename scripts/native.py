@@ -121,6 +121,8 @@ if 'kvazaar' in FEATURES:
                         '-DBUILD_TESTS=OFF', '-DBUILD_KVAZAAR_BINARY=OFF', '-DUSE_CRYPTO=OFF']
           # Upstream's pkg-config template consumes LIBS, but CMake leaves it unset.
           + ([] if WINDOWS else ['-DLIBS=-lm -pthread']))
+    if WINDOWS and 'static' in FEATURES:
+        shutil.copy2(PREFIX / 'lib/libkvazaar.lib', PREFIX / 'lib/kvazaar.lib')
 source = extract('ffmpeg')
 build = OUT / 'ffmpeg-build'
 if build.exists():
