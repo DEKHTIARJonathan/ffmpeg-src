@@ -4,6 +4,7 @@ import json
 from pathlib import Path
 import shutil
 import subprocess
+import sys
 import tarfile
 import tempfile
 import tomllib
@@ -26,7 +27,13 @@ dependency = 'ffmpeg-src = { path = ' + json.dumps(str(crate)) + ', default-feat
 (preparer / 'Cargo.toml').write_text('[package]\nname="prepare-sdk"\nversion="0.0.0"\nedition="2021"\n[dependencies]\n' + dependency + '\n[workspace]\n')
 subprocess.run(['cargo', 'generate-lockfile', '--manifest-path', str(preparer / 'Cargo.toml')], check=True)
 command = ['cargo', 'run', '--locked', '--manifest-path', str(preparer / 'Cargo.toml')]
-prefix = Path(subprocess.check_output(command, text=True).strip().splitlines()[-1])
+try:
+    prefix = Path(subprocess.check_output(command, text=True).strip().splitlines()[-1])
+except subprocess.CalledProcessError:
+    for log in (preparer / 'target').glob('**/ffbuild/config.log'):
+        print(f'FFmpeg configure diagnostics: {log}', file=sys.stderr)
+        print(log.read_text(errors='replace'), file=sys.stderr)
+    raise
 consumer = work / 'consumer'
 shutil.copytree(root / 'testcrate', consumer, ignore=shutil.ignore_patterns('target'))
 env = os.environ.copy()

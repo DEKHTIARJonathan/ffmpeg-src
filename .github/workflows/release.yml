@@ -90,7 +90,7 @@ jobs:
       - uses: actions/cache@v4
         with:
           path: .cache/sccache
-          key: sccache-${{ runner.os }}-${{ runner.arch }}-${{ matrix.features }}-${{ hashFiles('Cargo.lock', 'scripts/native.py', '.gitmodules') }}
+          key: sccache-${{ runner.os }}-${{ runner.arch }}-${{ strategy.job-index }}-${{ hashFiles('Cargo.lock', 'scripts/native.py', '.gitmodules', '.github/workflows/release.yml') }}
       - run: python scripts/verify.py
         env:
           FEATURES: ${{ matrix.features }}
