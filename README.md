@@ -35,6 +35,9 @@ in include, libraries in lib, Windows DLLs in bin, and pkg-config files in
 lib/pkgconfig. A downstream build.rs cannot prepare its own dependencies' SDK.
 Use pkg-config discovery for static consumers, which need the complete native
 link dependency closure. Do not enable ffmpeg-sys-next's own build feature.
+Static builds query pkg-config with `--static`. For Kvazaar, the builder supplies
+the upstream CMake template's `LIBS` input for math and pthread dependencies;
+the pinned CMake project otherwise leaves its private link metadata empty.
 
 SDK paths live in OUT_DIR and are not permanent installations. Consumers own
 runtime staging, loader paths, signing, notices, and redistribution compliance.

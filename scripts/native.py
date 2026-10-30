@@ -30,8 +30,10 @@ MSYS = os.environ.get('FFMPEG_SRC_MSYS_BIN')
 if WINDOWS:
     if not MSYS:
         raise SystemExit('Set FFMPEG_SRC_MSYS_BIN to the MSYS2 usr/bin directory')
-    # Keep the initialized MSVC compiler directories before MSYS utilities.
-    ENV['PATH'] = ENV['PATH'] + os.pathsep + MSYS
+    # Keep MSVC first, then one consistent MSYS toolset before Git/Strawberry tools.
+    paths = ENV['PATH'].split(os.pathsep)
+    msvc = [p for p in paths if (Path(p) / 'cl.exe').is_file()]
+    ENV['PATH'] = os.pathsep.join(msvc + [MSYS] + [p for p in paths if p not in msvc and p != MSYS])
 SH = str(Path(MSYS) / 'sh.exe') if WINDOWS else 'sh'
 MAKE = str(Path(MSYS) / 'make.exe') if WINDOWS else 'make'
 
@@ -116,7 +118,9 @@ if 'zlib' in FEATURES:
 if 'kvazaar' in FEATURES:
     k = extract('kvazaar')
     cmake('kvazaar', k, ['-DBUILD_SHARED_LIBS=' + ('ON' if 'shared' in FEATURES else 'OFF'),
-                        '-DBUILD_TESTS=OFF', '-DBUILD_KVAZAAR_BINARY=OFF', '-DUSE_CRYPTO=OFF'])
+                        '-DBUILD_TESTS=OFF', '-DBUILD_KVAZAAR_BINARY=OFF', '-DUSE_CRYPTO=OFF']
+          # Upstream's pkg-config template consumes LIBS, but CMake leaves it unset.
+          + ([] if WINDOWS else ['-DLIBS=-lm -pthread']))
 source = extract('ffmpeg')
 build = OUT / 'ffmpeg-build'
 if build.exists():
@@ -136,12 +140,16 @@ for feature, option in [('enable-gpl', 'gpl'), ('enable-version3', 'version3'), 
     args.append(('--enable-' if feature in FEATURES else '--disable-') + option)
 if APPLE:
     args += ['--install-name-dir=@rpath']
+if 'static' in FEATURES:
+    args += ['--pkg-config-flags=--static']
 if WINDOWS:
     args += ['--toolchain=msvc', '--extra-cflags=-' + ('MT' if 'static-crt' in FEATURES else 'MD')]
 if 'linux' in TARGET:
     args += [r'--extra-ldflags=-Wl,-rpath,\$$ORIGIN']
 if 'zlib' in FEATURES:
-    args += ['--extra-cflags=-I' + shell_path(PREFIX / 'include'), '--extra-ldflags=-L' + shell_path(PREFIX / 'lib')]
+    args += ['--extra-cflags=-I' + shell_path(PREFIX / 'include'),
+             '--extra-ldflags=' + ('-libpath:' + (PREFIX / 'lib').as_posix() if WINDOWS
+                                   else '-L' + str(PREFIX / 'lib'))]
 run(args, build)
 run([MAKE, '-j' + JOBS, 'V=1', 'REVISION=8.0'], build)
 run([MAKE, 'install-libs', 'install-headers', 'REVISION=8.0'], build)
