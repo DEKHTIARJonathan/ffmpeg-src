@@ -1,3 +1,6 @@
 [submodule "ffmpeg"]
 	path = ffmpeg
 	url = https://github.com/FFmpeg/FFmpeg.git
+[submodule "kvazaar"]
+	path = kvazaar
+	url = https://github.com/ultravideo/kvazaar.git

@@ -1,0 +1,51 @@
+repos:
+  - repo: local
+    hooks:
+      - id: rustfmt
+        name: Rust formatting
+        language: system
+        entry: cargo fmt --check
+        pass_filenames: false
+        types: [rust]
+      - id: cargo-deny
+        name: Root dependency and license policy
+        language: system
+        entry: cargo deny --all-features check
+        pass_filenames: false
+        always_run: true
+      - id: consumer-deny
+        name: Consumer dependency and license policy
+        language: system
+        entry: cargo deny --manifest-path testcrate/Cargo.toml check
+        pass_filenames: false
+        always_run: true
+      - id: audit
+        name: Consumer vulnerability audit
+        language: system
+        entry: cargo audit --file testcrate/Cargo.lock
+        pass_filenames: false
+        always_run: true
+      - id: unused-dependencies
+        name: Unused Rust dependencies
+        language: system
+        entry: cargo machete Cargo.toml testcrate/Cargo.toml
+        pass_filenames: false
+        always_run: true
+      - id: python-syntax
+        name: Python syntax
+        language: system
+        entry: python3 -m py_compile
+        types: [python]
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v6.0.0
+    hooks:
+      - id: trailing-whitespace
+      - id: end-of-file-fixer
+      - id: check-toml
+      - id: check-yaml
+      - id: detect-private-key
+  - repo: https://github.com/rhysd/actionlint
+    rev: v1.7.12
+    hooks:
+      - id: actionlint
+exclude: ^(ffmpeg|kvazaar)/
