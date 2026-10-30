@@ -19,6 +19,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
+          fetch-depth: 0
           submodules: true
       - uses: dtolnay/rust-toolchain@1.98.0
         with:
@@ -30,8 +31,6 @@ jobs:
         with:
           prek-version: '0.5.5'
       - run: cargo fmt --manifest-path testcrate/Cargo.toml --check
-      - name: Fetch the pinned upstream release tag
-        run: git -C ffmpeg fetch --depth 1 origin refs/tags/n8.0:refs/tags/n8.0
       - run: make check-version
   package:
     needs: pre-commit
@@ -39,6 +38,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
+          fetch-depth: 0
           submodules: true
       - uses: dtolnay/rust-toolchain@1.98.0
       - run: python scripts/setup.py
@@ -67,6 +67,8 @@ jobs:
       SCCACHE_DIR: ${{ github.workspace }}/.cache/sccache
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
       - uses: dtolnay/rust-toolchain@1.98.0
       - run: python scripts/setup.py
       - if: runner.os == 'Linux'
@@ -105,6 +107,8 @@ jobs:
       id-token: write
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
       - uses: dtolnay/rust-toolchain@1.98.0
       - run: python scripts/setup.py
       - uses: actions/download-artifact@v4
@@ -132,6 +136,8 @@ jobs:
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
       - uses: actions/download-artifact@v4
         with:
           name: candidate

@@ -17,3 +17,7 @@ Keep reference repositories read-only. Never push, publish, authenticate or
 create remotes without authorization. Preserve published versions and tags.
 Validate RCs before stable; verify tested and published archives byte for byte.
 Do not add release controllers, catalogs or generated provenance inventories.
+
+Use full-history CI checkouts (`fetch-depth: 0`), including native submodules.
+Release verification must have upstream tags available without shallow-fetch
+workarounds.
