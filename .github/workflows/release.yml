@@ -30,6 +30,8 @@ jobs:
         with:
           prek-version: '0.5.5'
       - run: cargo fmt --manifest-path testcrate/Cargo.toml --check
+      - name: Fetch the pinned upstream release tag
+        run: git -C ffmpeg fetch --depth 1 origin refs/tags/n8.0:refs/tags/n8.0
       - run: make check-version
   package:
     needs: pre-commit
