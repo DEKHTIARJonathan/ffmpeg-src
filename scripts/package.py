@@ -48,7 +48,8 @@ for name in ['Cargo.toml', 'Cargo.lock', 'build.rs', 'README.md', 'LICENSE.md']:
 for name in ['src', 'native']:
     shutil.copytree(ROOT / name, stage / name)
 (stage / 'scripts').mkdir()
-shutil.copy2(ROOT / 'scripts/native.py', stage / 'scripts/native.py')
+for name in ['native.py', 'pkg_config.py', 'pkg_config.cmd']:
+    shutil.copy2(ROOT / 'scripts' / name, stage / 'scripts' / name)
 subprocess.run(['cargo', 'package', '--manifest-path', str(stage / 'Cargo.toml'), '--locked', '--no-verify'], check=True)
 archive = stage / 'target/package' / f'ffmpeg-src-{VERSION}.crate'
 size = archive.stat().st_size

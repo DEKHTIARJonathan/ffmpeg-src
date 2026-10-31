@@ -158,6 +158,9 @@ run(args, build)
 run([MAKE, '-j' + JOBS, 'V=1', 'REVISION=8.0'], build)
 run([MAKE, 'install-libs', 'install-headers', 'REVISION=8.0'], build)
 if WINDOWS:
+    (PREFIX / 'bin').mkdir(exist_ok=True)
+    for name in ['pkg_config.py', 'pkg_config.cmd']:
+        shutil.copy2(ROOT / 'scripts' / name, PREFIX / 'bin' / name)
     for lib in (PREFIX / 'bin').glob('*.lib'):
         shutil.copy2(lib, PREFIX / 'lib' / lib.name)
 for name in ['ffmpeg', 'zlib', 'kvazaar']:

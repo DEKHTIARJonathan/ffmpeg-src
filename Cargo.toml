@@ -6,7 +6,7 @@ license-file = "LICENSE.md"
 description = "Pristine FFmpeg sources and configurable native SDK builds"
 repository = "https://github.com/DEKHTIARJonathan/ffmpeg-src"
 links = "ffmpeg_src"
-include = ["src", "build.rs", "scripts/native.py", "native", "README.md", "LICENSE.md"]
+include = ["src", "build.rs", "scripts/native.py", "scripts/pkg_config.py", "scripts/pkg_config.cmd", "native", "README.md", "LICENSE.md"]
 
 [features]
 default = ["avdevice", "avfilter", "avformat", "swscale", "swresample", "shared", "zlib", "asm", "network"]

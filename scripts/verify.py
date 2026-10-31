@@ -43,7 +43,7 @@ env['DYLD_LIBRARY_PATH'] = str(prefix / 'lib')
 env['LD_LIBRARY_PATH'] = str(prefix / 'lib')
 env['PATH'] = str(prefix / 'bin') + os.pathsep + env['PATH']
 if os.name == 'nt':
-    env['PKG_CONFIG'] = str(Path(env['FFMPEG_SRC_MSYS_BIN']) / 'pkgconf.exe')
+    env['PKG_CONFIG'] = str(prefix / 'bin/pkg_config.cmd')
 env['EXPECT_KVAZAAR'] = str(int('kvazaar' in features.split(',')))
 env['EXPECT_VERSION3'] = str(int('enable-version3' in features.split(',')))
 env['EXPECT_GPL'] = str(int('enable-gpl' in features.split(',')))

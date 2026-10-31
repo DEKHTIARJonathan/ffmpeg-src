@@ -39,6 +39,14 @@ Static builds query pkg-config with `--static`. For Kvazaar, the builder supplie
 the upstream CMake template's `LIBS` input for math and pthread dependencies;
 the pinned CMake project otherwise leaves its private link metadata empty.
 
+For Windows static Rust consumers, unset FFMPEG_DIR, set PKG_CONFIG_PATH to
+`<prefix>/lib/pkgconfig`, and set PKG_CONFIG to `<prefix>/bin/pkg_config.cmd`.
+Keep Python on PATH and FFMPEG_SRC_MSYS_BIN set to the MSYS2 usr/bin directory
+(or set FFMPEG_SRC_PKG_CONFIG to an explicit pkgconf executable). This SDK helper
+translates FFmpeg's MSVC `-libpath:` and `.lib` flags into portable pkg-config
+flags understood by Rust's pkg-config crate. Upstream generated files remain
+unchanged. Using them directly with Rust misinterprets `-libpath:` as a library.
+
 SDK paths live in OUT_DIR and are not permanent installations. Consumers own
 runtime staging, loader paths, signing, notices, and redistribution compliance.
 Preserve versioned dylib/SONAME filenames and symlinks. No FFmpeg CLI is built.
