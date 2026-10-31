@@ -3,7 +3,7 @@ on:
   pull_request:
   push:
     branches: [master]
-    tags: ['n8.0', 'n8.0-rc*']
+    tags: ['n9.0']
 permissions:
   contents: read
 concurrency:
@@ -122,8 +122,8 @@ jobs:
       - name: Validate tag and identical repackaging
         run: |
           version=$(python3 -c 'import tomllib; print(tomllib.load(open("Cargo.toml","rb"))["package"]["version"])')
-          expected=n8.0
-          case "$version" in *-rc*) expected="n8.0-${version#*-}";; esac
+          test "$version" = "9.0.0-rc1"
+          expected=n9.0
           test "$GITHUB_REF_NAME" = "$expected"
           mkdir -p target/publication
           tar -xf dist/*.crate -C target/publication --strip-components=1

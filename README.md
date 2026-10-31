@@ -1,7 +1,7 @@
 # ffmpeg-src
 
-FFmpeg n8.0, built from pristine source with configure/Make. Cargo 8.0.0-rcN
-identifies wrapper candidates; native FFmpeg remains 8.0. This implementation is
+FFmpeg n9.0, built from pristine source with configure/Make. Cargo 9.0.0-rcN
+identifies wrapper candidates; native FFmpeg remains 9.0. This implementation is
 under qualification; platform and feature support must be validated before release.
 
 Prerequisites: Rust, Python 3.11+, a C/C++ compiler, GNU Make, POSIX shell,
@@ -71,6 +71,8 @@ outputs. This helper is CI tooling, not part of the published native builder.
 Run make package, make build, and make test. Packaging runs prek and formatting,
 then measures the actual archive. make test extracts it into an isolated project.
 Native source compression keeps one source crate below the registry limit.
+Packaging omits unused FFmpeg library test programs and Kvazaar developer documentation,
+while preserving required Make metadata, source contents, permissions and notices.
 
 ## FrameForge migration
 
@@ -81,14 +83,16 @@ application Cargo starts. Replace native downloads and SDK marker machinery;
 retain Tauri staging, signing, executable loader paths, deployment targets and
 the Windows bindgen stack workaround. Stage all native notices.
 
-This changes FrameForge's native baseline from 9.0 to the requested 8.0 and needs
-extraction/encoding/remux regression tests. Its separate Python-wheel x265 recipes
+This matches FrameForge's native 9.0 baseline; application-level
+extraction/encoding/remux regression tests are still required. Its separate Python-wheel x265 recipes
 are outside this migration. Reference checkouts must remain read-only.
 
 ## Releases
 
-Publish candidates as 8.0.0-rcN from n8.0-rcN tags. After qualification, rebuild
-8.0.0 and release n8.0. Transfer the exact tested crate between CI jobs; reconstruct
+This branch publishes Cargo 9.0.0-rc1 from the Git tag n9.0. The native release
+is 9.0, without the wrapper RC suffix. Preserve this tag after publication; any
+future wrapper release requires a distinct tag and fresh validation.
+Transfer the exact tested crate between CI jobs; reconstruct
 publication inputs, restore Cargo.toml.orig, and require identical repackaging.
 Trusted publishing requires separate authorization and registry configuration.
 Download the exact published archive, compare its bytes and freshly test a consumer.

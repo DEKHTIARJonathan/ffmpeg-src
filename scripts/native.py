@@ -145,7 +145,8 @@ if APPLE:
 if 'static' in FEATURES:
     args += ['--pkg-config-flags=--static']
 if WINDOWS:
-    args += ['--toolchain=msvc', '--extra-cflags=-' + ('MT' if 'static-crt' in FEATURES else 'MD')]
+    runtime = '-' + ('MT' if 'static-crt' in FEATURES else 'MD')
+    args += ['--toolchain=msvc', '--extra-cflags=' + runtime, '--extra-cxxflags=' + runtime]
     if 'static' in FEATURES and 'kvazaar' in FEATURES:
         args += ['--extra-cflags=-DKVZ_STATIC_LIB']
 if 'linux' in TARGET:
@@ -155,8 +156,8 @@ if 'zlib' in FEATURES:
              '--extra-ldflags=' + ('-libpath:' + (PREFIX / 'lib').as_posix() if WINDOWS
                                    else '-L' + str(PREFIX / 'lib'))]
 run(args, build)
-run([MAKE, '-j' + JOBS, 'V=1', 'REVISION=8.0'], build)
-run([MAKE, 'install-libs', 'install-headers', 'REVISION=8.0'], build)
+run([MAKE, '-j' + JOBS, 'V=1', 'REVISION=9.0'], build)
+run([MAKE, 'install-libs', 'install-headers', 'REVISION=9.0'], build)
 if WINDOWS:
     (PREFIX / 'bin').mkdir(exist_ok=True)
     for name in ['pkg_config.py', 'pkg_config.cmd']:

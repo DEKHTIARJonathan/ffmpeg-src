@@ -23,8 +23,8 @@ fn main() {
         let version = CStr::from_ptr(ffmpeg::ffi::av_version_info())
             .to_str()
             .unwrap();
-        assert_eq!(version, "8.0");
-        assert_eq!(ffmpeg::ffi::avcodec_version(), (62 << 16) | (11 << 8) | 100);
+        assert_eq!(version, "9.0");
+        assert_eq!(ffmpeg::ffi::avcodec_version(), (63 << 16) | (1 << 8) | 100);
         let license = CStr::from_ptr(ffmpeg::ffi::avcodec_license())
             .to_str()
             .unwrap();
@@ -34,11 +34,11 @@ fn main() {
         println!("{version}\n{license}\n{config}");
         assert!(!config.contains("--enable-nonfree"));
         for (actual, expected) in [
-            (ffmpeg::ffi::avutil_version(), (60 << 16) | (8 << 8) | 100),
-            (ffmpeg::ffi::avformat_version(), (62 << 16) | (3 << 8) | 100),
+            (ffmpeg::ffi::avutil_version(), (61 << 16) | (1 << 8) | 100),
+            (ffmpeg::ffi::avformat_version(), (63 << 16) | (1 << 8) | 100),
             #[cfg(feature = "filter")]
-            (ffmpeg::ffi::avfilter_version(), (11 << 16) | (4 << 8) | 100),
-            (ffmpeg::ffi::swscale_version(), (9 << 16) | (1 << 8) | 100),
+            (ffmpeg::ffi::avfilter_version(), (12 << 16) | (1 << 8) | 100),
+            (ffmpeg::ffi::swscale_version(), (10 << 16) | (1 << 8) | 100),
         ] {
             assert_eq!(actual, expected);
         }

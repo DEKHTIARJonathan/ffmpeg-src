@@ -11,12 +11,12 @@ import urllib.request
 
 ROOT = Path(__file__).resolve().parent.parent
 VERSION = tomllib.loads((ROOT / 'Cargo.toml').read_text())['package']['version']
-PINS = {'ffmpeg': '140fd653aed8cad774f991ba083e2d01e86420c7',
+PINS = {'ffmpeg': 'd32b387f2b0a484599d4587d651891f0c63c4238',
         'kvazaar': '6040962bed5cc68c5ad01234c38c08b8b2822068'}
 for name, pin in PINS.items():
     assert subprocess.check_output(['git', '-C', name, 'rev-parse', 'HEAD'], text=True).strip() == pin
     assert not subprocess.check_output(['git', '-C', name, 'status', '--porcelain'])
-assert VERSION.split('-')[0] == '8.0.0'
+assert VERSION.split('-')[0] == '9.0.0'
 paths = ['configure', 'Makefile', 'RELEASE', 'LICENSE.md', 'COPYING.GPLv2', 'COPYING.GPLv3',
          'COPYING.LGPLv2.1', 'COPYING.LGPLv3', 'CREDITS', 'compat', 'ffbuild', 'libavcodec',
          'libavdevice', 'libavfilter', 'libavformat', 'libavutil', 'libswresample', 'libswscale',
@@ -27,7 +27,18 @@ native.mkdir(exist_ok=True)
 for name in PINS:
     data = subprocess.check_output(['git', '-C', name, 'archive', '--prefix=' + name + '/', 'HEAD',
                                     *(paths if name == 'ffmpeg' else [])])
-    (native / (name + '.tar.xz')).write_bytes(lzma.compress(data, preset=9))
+    output = io.BytesIO()
+    with tarfile.open(fileobj=io.BytesIO(data)) as source, tarfile.open(fileobj=output, mode='w') as dest:
+        for member in source:
+            parts = Path(member.name).parts
+            # Library test programs and Kvazaar documentation are not SDK inputs.
+            if name == 'ffmpeg' and len(parts) > 2 and parts[1].startswith('lib') and parts[2] == 'tests':
+                continue
+            if (name == 'kvazaar' and len(parts) > 1 and parts[1] in ['doc', 'docs.doxy']
+                    and member.name != 'kvazaar/doc/kvazaar.1'):
+                continue
+            dest.addfile(member, source.extractfile(member) if member.isfile() else None)
+    (native / (name + '.tar.xz')).write_bytes(lzma.compress(output.getvalue(), preset=9))
 data = urllib.request.urlopen('https://github.com/madler/zlib/releases/download/v1.3.2/zlib-1.3.2.tar.gz').read()
 assert hashlib.sha256(data).hexdigest() == 'bb329a0a2cd0274d05519d61c667c062e06990d72e125ee2dfa8de64f0119d16'
 output = io.BytesIO()
