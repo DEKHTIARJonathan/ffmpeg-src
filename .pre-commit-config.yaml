@@ -7,6 +7,12 @@ repos:
         entry: cargo fmt --check
         pass_filenames: false
         types: [rust]
+      - id: adapter-rustfmt
+        name: Compiler adapter formatting
+        language: system
+        entry: rustfmt --edition 2021 --check scripts/rustc_cache.rs
+        pass_filenames: false
+        types: [rust]
       - id: cargo-deny
         name: Root dependency and license policy
         language: system

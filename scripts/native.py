@@ -130,7 +130,7 @@ if build.exists():
 build.mkdir()
 ENV['PKG_CONFIG_PATH'] = shell_path(PREFIX / 'lib/pkgconfig') + ':' + ENV.get('PKG_CONFIG_PATH', '')
 cc = compiler('CC', 'cl.exe' if WINDOWS else 'cc')
-args = [SH, shell_path(source / 'configure'), '--prefix=' + shell_path(PREFIX), '--disable-programs', '--disable-doc',
+args = [SH, shell_path(source / 'configure'), '--prefix=' + PREFIX.as_posix(), '--disable-programs', '--disable-doc',
         '--disable-autodetect', '--disable-nonfree', '--enable-pic', '--disable-debug',
         '--cc=' + cc, '--cxx=' + compiler('CXX', 'cl.exe' if WINDOWS else 'c++'),
         '--host-cc=' + compiler('HOST_CC', 'cl.exe' if WINDOWS else 'cc'), '--objcc=' + cc]
@@ -146,6 +146,8 @@ if 'static' in FEATURES:
     args += ['--pkg-config-flags=--static']
 if WINDOWS:
     args += ['--toolchain=msvc', '--extra-cflags=-' + ('MT' if 'static-crt' in FEATURES else 'MD')]
+    if 'static' in FEATURES and 'kvazaar' in FEATURES:
+        args += ['--extra-cflags=-DKVZ_STATIC_LIB']
 if 'linux' in TARGET:
     args += [r'--extra-ldflags=-Wl,-rpath,\$$ORIGIN']
 if 'zlib' in FEATURES:

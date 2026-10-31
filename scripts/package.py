@@ -28,7 +28,7 @@ for name in PINS:
     data = subprocess.check_output(['git', '-C', name, 'archive', '--prefix=' + name + '/', 'HEAD',
                                     *(paths if name == 'ffmpeg' else [])])
     (native / (name + '.tar.xz')).write_bytes(lzma.compress(data, preset=9))
-data = urllib.request.urlopen('https://zlib.net/fossils/zlib-1.3.2.tar.gz').read()
+data = urllib.request.urlopen('https://github.com/madler/zlib/releases/download/v1.3.2/zlib-1.3.2.tar.gz').read()
 assert hashlib.sha256(data).hexdigest() == 'bb329a0a2cd0274d05519d61c667c062e06990d72e125ee2dfa8de64f0119d16'
 output = io.BytesIO()
 with tarfile.open(fileobj=io.BytesIO(data)) as source, tarfile.open(fileobj=output, mode='w') as dest:

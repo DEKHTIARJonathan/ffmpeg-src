@@ -51,6 +51,15 @@ host compiler commands use the supplied cache wrapper; CMake uses C/C++ launcher
 A repeated no-op build is not cache evidence. Cache-hit qualification must remove
 native outputs while preserving the compiler cache and record actual statistics.
 
+Windows CI uses `scripts/rustc_cache.py setup` after initializing MSVC. Its small
+compiler adapter works around sccache 0.19.0 expanding long Rust response files
+past Windows' process command-line limit. It preserves all cfg/check-cfg flags,
+includes their SHA-256 digest and compiler identity in the cache key, and restores
+them through a response file when invoking rustc. Native calls use sccache directly.
+`scripts/rustc_cache.py test` compiles an oversized argument list, removes outputs,
+checks an actual Rust cache hit, and verifies different cfg values yield different
+outputs. This helper is CI tooling, not part of the published native builder.
+
 Run make package, make build, and make test. Packaging runs prek and formatting,
 then measures the actual archive. make test extracts it into an isolated project.
 Native source compression keeps one source crate below the registry limit.

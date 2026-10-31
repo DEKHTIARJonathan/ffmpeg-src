@@ -78,6 +78,8 @@ jobs:
       - if: runner.os == 'Windows'
         uses: ilammy/msvc-dev-cmd@v1
       - if: runner.os == 'Windows'
+        run: python scripts/rustc_cache.py setup
+      - if: runner.os == 'Windows'
         uses: msys2/setup-msys2@v2
         id: msys
         with:
@@ -90,7 +92,9 @@ jobs:
       - uses: actions/cache@v4
         with:
           path: .cache/sccache
-          key: sccache-${{ runner.os }}-${{ runner.arch }}-${{ strategy.job-index }}-${{ hashFiles('Cargo.lock', 'scripts/native.py', '.gitmodules', '.github/workflows/release.yml') }}
+          key: sccache-${{ runner.os }}-${{ runner.arch }}-${{ strategy.job-index }}-${{ hashFiles('Cargo.lock', 'scripts/*.py', 'scripts/*.rs', '.gitmodules', '.github/workflows/release.yml') }}
+      - if: runner.os == 'Windows'
+        run: python scripts/rustc_cache.py test
       - run: python scripts/verify.py
         env:
           FEATURES: ${{ matrix.features }}
