@@ -4,3 +4,6 @@
 [submodule "kvazaar"]
 	path = kvazaar
 	url = https://github.com/ultravideo/kvazaar.git
+[submodule "nv-codec-headers"]
+	path = nv-codec-headers
+	url = https://github.com/FFmpeg/nv-codec-headers.git

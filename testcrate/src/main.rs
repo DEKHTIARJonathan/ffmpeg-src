@@ -38,6 +38,50 @@ fn main() {
             .unwrap();
         println!("{version}\n{license}\n{config}");
         assert!(!config.contains("--enable-nonfree"));
+        let cuda = std::env::var("EXPECT_CUDA").as_deref() == Ok("1");
+        assert_eq!(config.contains("--enable-ffnvcodec"), cuda);
+        assert_eq!(config.contains("--enable-nvdec"), cuda);
+        assert!(config.contains("--disable-cuda-nvcc"));
+        assert!(config.contains("--disable-cuda-llvm"));
+        let mut device = ffmpeg::ffi::AVHWDeviceType::AV_HWDEVICE_TYPE_NONE;
+        let mut has_cuda_device = false;
+        loop {
+            device = ffmpeg::ffi::av_hwdevice_iterate_types(device);
+            if device == ffmpeg::ffi::AVHWDeviceType::AV_HWDEVICE_TYPE_NONE {
+                break;
+            }
+            has_cuda_device |= device == ffmpeg::ffi::AVHWDeviceType::AV_HWDEVICE_TYPE_CUDA;
+        }
+        assert_eq!(has_cuda_device, cuda);
+        for id in [
+            ffmpeg::ffi::AVCodecID::AV_CODEC_ID_H264,
+            ffmpeg::ffi::AVCodecID::AV_CODEC_ID_HEVC,
+        ] {
+            let decoder = ffmpeg::ffi::avcodec_find_decoder(id);
+            assert!(!decoder.is_null());
+            let mut has_nvdec = false;
+            let mut index = 0;
+            loop {
+                let hardware = ffmpeg::ffi::avcodec_get_hw_config(decoder, index);
+                if hardware.is_null() {
+                    break;
+                }
+                let hardware = &*hardware;
+                has_nvdec |= hardware.device_type
+                    == ffmpeg::ffi::AVHWDeviceType::AV_HWDEVICE_TYPE_CUDA
+                    && hardware.pix_fmt == ffmpeg::ffi::AVPixelFormat::AV_PIX_FMT_CUDA
+                    && hardware.methods
+                        & ffmpeg::ffi::AV_CODEC_HW_CONFIG_METHOD_HW_DEVICE_CTX as i32
+                        != 0;
+                index += 1;
+            }
+            assert_eq!(has_nvdec, cuda, "NVDEC interface for {id:?}");
+        }
+        assert!(ffmpeg::ffi::avcodec_find_encoder_by_name(
+            CString::new("h264_nvenc").unwrap().as_ptr()
+        )
+        .is_null());
+        println!("CUDA/NVDEC compiled: {cuda}; GPU execution is not required or tested");
         for (actual, expected) in [
             (
                 ffmpeg::ffi::avutil_version(),

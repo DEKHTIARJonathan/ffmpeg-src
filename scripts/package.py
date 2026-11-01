@@ -13,7 +13,8 @@ ROOT = Path(__file__).resolve().parent.parent
 VERSION = tomllib.loads((ROOT / 'Cargo.toml').read_text())['package']['version']
 subprocess.run(['python3', str(ROOT / 'scripts/check_version.py')], check=True)
 PINS = {'ffmpeg': subprocess.check_output(['git', '-C', 'ffmpeg', 'rev-parse', 'HEAD'], text=True).strip(),
-        'kvazaar': '6040962bed5cc68c5ad01234c38c08b8b2822068'}
+        'kvazaar': '6040962bed5cc68c5ad01234c38c08b8b2822068',
+        'nv-codec-headers': '1889e62e2d35ff7aa9baca2bceb14f053785e6f1'}
 for name, pin in PINS.items():
     assert subprocess.check_output(['git', '-C', name, 'rev-parse', 'HEAD'], text=True).strip() == pin
     assert not subprocess.check_output(['git', '-C', name, 'status', '--porcelain'])

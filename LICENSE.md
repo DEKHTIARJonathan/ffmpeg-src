@@ -11,9 +11,12 @@ version 3 of the applicable license. Nonfree configurations are not supported.
 
 Kvazaar retains its BSD-3-Clause license, including notices in its sources.
 zlib retains its Zlib license. No source archive is relicensed by the selected
-Cargo features. Preserve source notices, including FFmpeg's IJG attribution,
-when redistributing. These build checks are not legal certification or patent
-clearance. The previously published 0.0.0 archive is unchanged.
+Cargo features. The optional CUDA decoder uses nv-codec-headers under its MIT
+grants; complete headers and their notices are preserved in the SDK. NVIDIA
+drivers and CUDA toolkit binaries are not bundled. Preserve source notices,
+including FFmpeg's IJG attribution, when redistributing. These build checks are
+not legal certification or patent clearance. The previously published 0.0.0
+archive is unchanged.
 
 ## MIT license for original build glue
 

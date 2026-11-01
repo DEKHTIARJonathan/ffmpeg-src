@@ -54,4 +54,4 @@ repos:
     rev: v1.7.12
     hooks:
       - id: actionlint
-exclude: ^(ffmpeg|kvazaar)/
+exclude: ^(ffmpeg|kvazaar|nv-codec-headers)/

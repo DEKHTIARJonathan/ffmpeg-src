@@ -22,6 +22,7 @@ if len(FEATURES & {'static', 'shared'}) != 1 or 'avutil' not in FEATURES:
 WINDOWS = TARGET.endswith('windows-msvc')
 APPLE = TARGET.endswith('apple-darwin')
 for feature, supported in [('videotoolbox', APPLE), ('vaapi', 'linux' in TARGET),
+                           ('cuda', WINDOWS or 'linux' in TARGET),
                            ('d3d11va', WINDOWS), ('dxva2', WINDOWS), ('static-crt', WINDOWS)]:
     if feature in FEATURES and not supported:
         raise SystemExit(feature + ' is not supported on ' + TARGET)
@@ -123,6 +124,15 @@ if 'kvazaar' in FEATURES:
           + ([] if WINDOWS else ['-DLIBS=-lm -pthread']))
     if WINDOWS and 'static' in FEATURES:
         shutil.copy2(PREFIX / 'lib/libkvazaar.lib', PREFIX / 'lib/kvazaar.lib')
+if 'cuda' in FEATURES:
+    headers = extract('nv-codec-headers')
+    # This upstream Make target installs headers/pkg-config metadata only.
+    run([MAKE, 'install', 'PREFIX=' + shell_path(PREFIX)], headers)
+    notices = PREFIX / 'share/licenses/nv-codec-headers'
+    notices.mkdir(parents=True, exist_ok=True)
+    shutil.copy2(headers / 'README', notices / 'README')
+    for header in (headers / 'include/ffnvcodec').glob('*.h'):
+        shutil.copy2(header, notices / header.name)
 source = extract('ffmpeg')
 release = (source / 'RELEASE').read_text().strip()
 assert os.environ['CARGO_PKG_VERSION'].split('-')[0] == release + ('.0' if release.count('.') == 1 else '')
@@ -134,13 +144,15 @@ ENV['PKG_CONFIG_PATH'] = shell_path(PREFIX / 'lib/pkgconfig') + ':' + ENV.get('P
 cc = compiler('CC', 'cl.exe' if WINDOWS else 'cc')
 args = [SH, shell_path(source / 'configure'), '--prefix=' + PREFIX.as_posix(), '--disable-programs', '--disable-doc',
         '--disable-autodetect', '--disable-nonfree', '--enable-pic', '--disable-debug',
+        '--disable-cuda-nvcc', '--disable-cuda-llvm', '--disable-cuvid', '--disable-nvenc',
         '--cc=' + cc, '--cxx=' + compiler('CXX', 'cl.exe' if WINDOWS else 'c++'),
         '--host-cc=' + compiler('HOST_CC', 'cl.exe' if WINDOWS else 'cc'), '--objcc=' + cc]
 for feature in LIBS + ['shared', 'static', 'zlib', 'asm', 'network']:
     args.append(('--enable-' if feature in FEATURES else '--disable-') + feature)
 for feature, option in [('enable-gpl', 'gpl'), ('enable-version3', 'version3'), ('kvazaar', 'libkvazaar'),
                         ('videotoolbox', 'videotoolbox'), ('vaapi', 'vaapi'), ('vaapi', 'libdrm'),
-                        ('d3d11va', 'd3d11va'), ('dxva2', 'dxva2')]:
+                        ('d3d11va', 'd3d11va'), ('dxva2', 'dxva2'),
+                        ('cuda', 'ffnvcodec'), ('cuda', 'nvdec')]:
     args.append(('--enable-' if feature in FEATURES else '--disable-') + option)
 if APPLE:
     args += ['--install-name-dir=@rpath']

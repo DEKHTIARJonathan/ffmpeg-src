@@ -3,7 +3,13 @@ use std::{env, path::PathBuf, process::Command};
 fn main() {
     let root = PathBuf::from(env::var_os("CARGO_MANIFEST_DIR").unwrap());
     let out = PathBuf::from(env::var_os("OUT_DIR").unwrap());
-    for path in ["scripts/native.py", "native", "ffmpeg", "kvazaar"] {
+    for path in [
+        "scripts/native.py",
+        "native",
+        "ffmpeg",
+        "kvazaar",
+        "nv-codec-headers",
+    ] {
         println!("cargo:rerun-if-changed={path}");
     }
     for key in [

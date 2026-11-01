@@ -57,11 +57,19 @@ jobs:
         features: ['', 'enable-gpl,kvazaar', 'static', 'static,enable-gpl,kvazaar', 'enable-version3']
         include:
           - os: ubuntu-24.04
-            features: kvazaar,vaapi
+            features: kvazaar,vaapi,cuda
           - os: macos-15
             features: kvazaar,videotoolbox
           - os: windows-2025
-            features: kvazaar,d3d11va,dxva2,static-crt
+            features: kvazaar,d3d11va,dxva2,static-crt,cuda
+          - os: ubuntu-24.04
+            features: cuda
+          - os: ubuntu-24.04
+            features: static,cuda
+          - os: windows-2025
+            features: cuda
+          - os: windows-2025
+            features: static,cuda
     runs-on: ${{ matrix.os }}
     env:
       SCCACHE_DIR: ${{ github.workspace }}/.cache/sccache

@@ -54,6 +54,7 @@ if os.name == 'nt':
 env['EXPECT_KVAZAAR'] = str(int('kvazaar' in features.split(',')))
 env['EXPECT_VERSION3'] = str(int('enable-version3' in features.split(',')))
 env['EXPECT_GPL'] = str(int('enable-gpl' in features.split(',')))
+env['EXPECT_CUDA'] = str(int('cuda' in features.split(',')))
 command = ['cargo', 'run', '--locked', '--manifest-path', str(consumer / 'Cargo.toml')]
 if not (prefix / 'include/libavfilter/avfilter.h').exists():
     command += ['--no-default-features']

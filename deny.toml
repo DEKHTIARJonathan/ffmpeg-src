@@ -4,7 +4,7 @@ allow = ["MIT", "Apache-2.0", "BSD-3-Clause", "ISC", "Unicode-3.0"]
 [[licenses.clarify]]
 name = "ffmpeg-src"
 expression = "MIT AND LGPL-2.1-or-later AND GPL-2.0-or-later AND BSD-3-Clause AND Zlib"
-license-files = [{ path = "LICENSE.md", hash = 0xfb2e27cd }]
+license-files = [{ path = "LICENSE.md", hash = 0x97239e9c }]
 
 [[licenses.exceptions]]
 name = "ffmpeg-src"

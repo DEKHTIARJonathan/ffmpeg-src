@@ -19,6 +19,19 @@ HEVC without GPL. Optional hardware features: videotoolbox (macOS), vaapi (Linux
 requires libva/libdrm development packages), d3d11va and dxva2 (Windows).
 static-crt selects the Windows static native CRT. Static consumers must match it.
 
+The optional `cuda` feature builds CUDA device and NVDEC decoding interfaces on
+Linux and Windows using pinned, MIT-licensed nv-codec-headers. It remains LGPL
+compatible and needs no CUDA toolkit at build time. It does not enable NVENC,
+CUVID decoder wrappers, CUDA kernel compilation, or nonfree components. GPU use
+is optional at runtime and requires compatible NVIDIA hardware/drivers; callers
+must retain software fallback. Header source and driver requirements are in the
+upstream README installed under `share/licenses/nv-codec-headers`.
+
+CI builds and runs packaged consumers with `cuda` in both shared and static
+configurations on Linux and Windows. It checks the linked libraries' CUDA device
+enumeration and H.264/HEVC NVDEC configurations, plus absence in default builds.
+These checks require no GPU and do not claim hardware decoding was executed.
+
 Only enable-gpl permits GPL compilation, including the boxblur filter; it implies
 avfilter. enable-version3 changes LGPL 2.1+ to LGPL 3+, or GPL 2+ to GPL 3+ when
 GPL is enabled. Nonfree and automatic external-library discovery are disabled.
