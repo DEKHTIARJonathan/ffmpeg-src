@@ -1,5 +1,6 @@
 """Build a fresh consumer against the exact candidate archive."""
 import os
+import argparse
 import json
 from pathlib import Path
 import shutil
@@ -11,7 +12,11 @@ import tomllib
 root = Path(__file__).resolve().parent.parent
 version = tomllib.loads((root / 'Cargo.toml').read_text())['package']['version']
 work = Path(tempfile.mkdtemp(prefix='ffmpeg-src-consumer-'))
-with tarfile.open(root / 'dist' / f'ffmpeg-src-{version}.crate') as archive:
+parser = argparse.ArgumentParser()
+parser.add_argument('--archive', type=Path, default=root / 'dist' / f'ffmpeg-src-{version}.crate')
+options = parser.parse_args()
+assert options.archive.stat().st_size < 10_000_000
+with tarfile.open(options.archive) as archive:
     archive.extractall(work, filter='data')
 crate = work / f'ffmpeg-src-{version}'
 preparer = work / 'prepare'
@@ -37,6 +42,8 @@ except subprocess.CalledProcessError:
 consumer = work / 'consumer'
 shutil.copytree(root / 'testcrate', consumer, ignore=shutil.ignore_patterns('target'))
 env = os.environ.copy()
+release = version.split('-')[0]
+env['EXPECT_FFMPEG_VERSION'] = release.removesuffix('.0') if release.endswith('.0') else release
 env['FFMPEG_DIR'] = str(prefix)
 env['PKG_CONFIG_PATH'] = str(prefix / 'lib/pkgconfig')
 env['DYLD_LIBRARY_PATH'] = str(prefix / 'lib')

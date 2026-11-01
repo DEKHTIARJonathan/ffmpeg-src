@@ -23,8 +23,13 @@ fn main() {
         let version = CStr::from_ptr(ffmpeg::ffi::av_version_info())
             .to_str()
             .unwrap();
-        assert_eq!(version, "9.0");
-        assert_eq!(ffmpeg::ffi::avcodec_version(), (63 << 16) | (1 << 8) | 100);
+        assert_eq!(version, std::env::var("EXPECT_FFMPEG_VERSION").unwrap());
+        assert_eq!(
+            ffmpeg::ffi::avcodec_version(),
+            ((ffmpeg::ffi::LIBAVCODEC_VERSION_MAJOR << 16)
+                | (ffmpeg::ffi::LIBAVCODEC_VERSION_MINOR << 8)
+                | ffmpeg::ffi::LIBAVCODEC_VERSION_MICRO) as u32
+        );
         let license = CStr::from_ptr(ffmpeg::ffi::avcodec_license())
             .to_str()
             .unwrap();
@@ -34,11 +39,31 @@ fn main() {
         println!("{version}\n{license}\n{config}");
         assert!(!config.contains("--enable-nonfree"));
         for (actual, expected) in [
-            (ffmpeg::ffi::avutil_version(), (61 << 16) | (1 << 8) | 100),
-            (ffmpeg::ffi::avformat_version(), (63 << 16) | (1 << 8) | 100),
+            (
+                ffmpeg::ffi::avutil_version(),
+                ((ffmpeg::ffi::LIBAVUTIL_VERSION_MAJOR << 16)
+                    | (ffmpeg::ffi::LIBAVUTIL_VERSION_MINOR << 8)
+                    | ffmpeg::ffi::LIBAVUTIL_VERSION_MICRO) as u32,
+            ),
+            (
+                ffmpeg::ffi::avformat_version(),
+                ((ffmpeg::ffi::LIBAVFORMAT_VERSION_MAJOR << 16)
+                    | (ffmpeg::ffi::LIBAVFORMAT_VERSION_MINOR << 8)
+                    | ffmpeg::ffi::LIBAVFORMAT_VERSION_MICRO) as u32,
+            ),
             #[cfg(feature = "filter")]
-            (ffmpeg::ffi::avfilter_version(), (12 << 16) | (1 << 8) | 100),
-            (ffmpeg::ffi::swscale_version(), (10 << 16) | (1 << 8) | 100),
+            (
+                ffmpeg::ffi::avfilter_version(),
+                ((ffmpeg::ffi::LIBAVFILTER_VERSION_MAJOR << 16)
+                    | (ffmpeg::ffi::LIBAVFILTER_VERSION_MINOR << 8)
+                    | ffmpeg::ffi::LIBAVFILTER_VERSION_MICRO) as u32,
+            ),
+            (
+                ffmpeg::ffi::swscale_version(),
+                ((ffmpeg::ffi::LIBSWSCALE_VERSION_MAJOR << 16)
+                    | (ffmpeg::ffi::LIBSWSCALE_VERSION_MINOR << 8)
+                    | ffmpeg::ffi::LIBSWSCALE_VERSION_MICRO) as u32,
+            ),
         ] {
             assert_eq!(actual, expected);
         }

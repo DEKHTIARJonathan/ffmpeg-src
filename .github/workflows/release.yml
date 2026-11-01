@@ -3,7 +3,7 @@ on:
   pull_request:
   push:
     branches: [master]
-    tags: ['n9.0']
+    tags: ['n[0-9]*']
 permissions:
   contents: read
 concurrency:
@@ -93,6 +93,7 @@ jobs:
         with:
           path: .cache/sccache
           key: sccache-${{ runner.os }}-${{ runner.arch }}-${{ strategy.job-index }}-${{ hashFiles('Cargo.lock', 'scripts/*.py', 'scripts/*.rs', '.gitmodules', '.github/workflows/release.yml') }}
+          restore-keys: sccache-${{ runner.os }}-${{ runner.arch }}-${{ strategy.job-index }}-
       - if: runner.os == 'Windows'
         run: python scripts/rustc_cache.py test
       - run: python scripts/verify.py
@@ -121,9 +122,7 @@ jobs:
           path: dist
       - name: Validate tag and identical repackaging
         run: |
-          version=$(python3 -c 'import tomllib; print(tomllib.load(open("Cargo.toml","rb"))["package"]["version"])')
-          test "$version" = "9.0.0-rc1"
-          expected=n9.0
+          expected=$(python3 -c 'import tomllib; v=tomllib.load(open("Cargo.toml","rb"))["package"]["version"]; assert "-" not in v; print("n" + (v if v == "9.0.0" else v.removesuffix(".0")))')
           test "$GITHUB_REF_NAME" = "$expected"
           mkdir -p target/publication
           tar -xf dist/*.crate -C target/publication --strip-components=1

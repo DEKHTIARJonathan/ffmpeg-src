@@ -1,8 +1,9 @@
 # ffmpeg-src
 
-FFmpeg n9.0, built from pristine source with configure/Make. Cargo 9.0.0-rcN
-identifies wrapper candidates; native FFmpeg remains 9.0. This implementation is
-under qualification; platform and feature support must be validated before release.
+Pristine FFmpeg sources built with configure/Make. The Cargo manifest selects the
+native release: X.Y.0 corresponds to upstream nX.Y, while X.Y.Z corresponds to
+nX.Y.Z. An optional -rcN suffix identifies wrapper candidates; it never changes
+the native release or ABI. The upstream submodule is pinned to that exact tag.
 
 Prerequisites: Rust, Python 3.11+, a C/C++ compiler, GNU Make, POSIX shell,
 pkg-config, CMake 3.25+, Ninja, and NASM on x86. Windows requires MSVC and MSYS2
@@ -78,20 +79,21 @@ while preserving required Make metadata, source contents, permissions and notice
 
 Keep ffmpeg-next 9.0.0 and ffmpeg-sys-next 9.0.1 initially. Add this source crate to
 the independent xtask/preparer phase, with shared,avformat,swscale,zlib,kvazaar,
-asm,network and the platform hardware features. Export SDK discovery before
+asm and the platform hardware features. Export SDK discovery before
 application Cargo starts. Replace native downloads and SDK marker machinery;
 retain Tauri staging, signing, executable loader paths, deployment targets and
 the Windows bindgen stack workaround. Stage all native notices.
 
-This matches FrameForge's native 9.0 baseline; application-level
-extraction/encoding/remux regression tests are still required. Its separate Python-wheel x265 recipes
+Application-level extraction/encoding/remux regression tests are required for
+each selected native baseline. Its separate Python-wheel x265 recipes
 are outside this migration. Reference checkouts must remain read-only.
 
 ## Releases
 
-This branch publishes Cargo 9.0.0-rc1 from the Git tag n9.0. The native release
-is 9.0, without the wrapper RC suffix. Preserve this tag after publication; any
-future wrapper release requires a distinct tag and fresh validation.
+Validate candidates before stable publication. Release tags follow upstream's
+nX.Y / nX.Y.Z spelling; wrapper candidates append -rcN. Never move a tag that
+published successfully. The historical n9.0 tag published the 9.0.0-rc1 candidate
+and remains unchanged; stable 9.0.0 uses n9.0.0 instead.
 Transfer the exact tested crate between CI jobs; reconstruct
 publication inputs, restore Cargo.toml.orig, and require identical repackaging.
 Trusted publishing requires separate authorization and registry configuration.

@@ -124,6 +124,8 @@ if 'kvazaar' in FEATURES:
     if WINDOWS and 'static' in FEATURES:
         shutil.copy2(PREFIX / 'lib/libkvazaar.lib', PREFIX / 'lib/kvazaar.lib')
 source = extract('ffmpeg')
+release = (source / 'RELEASE').read_text().strip()
+assert os.environ['CARGO_PKG_VERSION'].split('-')[0] == release + ('.0' if release.count('.') == 1 else '')
 build = OUT / 'ffmpeg-build'
 if build.exists():
     shutil.rmtree(build)
@@ -156,8 +158,8 @@ if 'zlib' in FEATURES:
              '--extra-ldflags=' + ('-libpath:' + (PREFIX / 'lib').as_posix() if WINDOWS
                                    else '-L' + str(PREFIX / 'lib'))]
 run(args, build)
-run([MAKE, '-j' + JOBS, 'V=1', 'REVISION=9.0'], build)
-run([MAKE, 'install-libs', 'install-headers', 'REVISION=9.0'], build)
+run([MAKE, '-j' + JOBS, 'V=1', 'REVISION=' + release], build)
+run([MAKE, 'install-libs', 'install-headers', 'REVISION=' + release], build)
 if WINDOWS:
     (PREFIX / 'bin').mkdir(exist_ok=True)
     for name in ['pkg_config.py', 'pkg_config.cmd']:

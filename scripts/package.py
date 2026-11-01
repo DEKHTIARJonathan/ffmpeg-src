@@ -11,12 +11,12 @@ import urllib.request
 
 ROOT = Path(__file__).resolve().parent.parent
 VERSION = tomllib.loads((ROOT / 'Cargo.toml').read_text())['package']['version']
-PINS = {'ffmpeg': 'd32b387f2b0a484599d4587d651891f0c63c4238',
+subprocess.run(['python3', str(ROOT / 'scripts/check_version.py')], check=True)
+PINS = {'ffmpeg': subprocess.check_output(['git', '-C', 'ffmpeg', 'rev-parse', 'HEAD'], text=True).strip(),
         'kvazaar': '6040962bed5cc68c5ad01234c38c08b8b2822068'}
 for name, pin in PINS.items():
     assert subprocess.check_output(['git', '-C', name, 'rev-parse', 'HEAD'], text=True).strip() == pin
     assert not subprocess.check_output(['git', '-C', name, 'status', '--porcelain'])
-assert VERSION.split('-')[0] == '9.0.0'
 paths = ['configure', 'Makefile', 'RELEASE', 'LICENSE.md', 'COPYING.GPLv2', 'COPYING.GPLv3',
          'COPYING.LGPLv2.1', 'COPYING.LGPLv3', 'CREDITS', 'compat', 'ffbuild', 'libavcodec',
          'libavdevice', 'libavfilter', 'libavformat', 'libavutil', 'libswresample', 'libswscale',
